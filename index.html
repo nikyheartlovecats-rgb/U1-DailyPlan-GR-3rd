@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colegio Montano - 3rd Grade Grammar Interactive Board</title>
+  <style>
+    :root {
+      --primary-blue: #1269A8;
+      --bright-yellow: #F7D615;
+      --gray-green: #54887D;
+      --light-blue: #88B5C7;
+      --olive-green: #A6B046;
+      --board-bg: #F2F5E9;
+      --card-bg: #FFFFFF;
+      --dark-text: #2C3E50;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #DDE4D2;
+      color: var(--dark-text);
+      padding: 15px;
+    }
+
+    #board-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      background-color: var(--board-bg);
+      border: 8px solid var(--primary-blue);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--primary-blue);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .header-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .header-info img {
+      height: 55px;
+      background: white;
+      padding: 4px;
+      border-radius: 6px;
+    }
+
+    .header-titles h1 {
+      font-size: 1.5rem;
+      color: var(--bright-yellow);
+    }
+
+    .header-titles p {
+      font-size: 0.9rem;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-fullscreen {
+      background-color: var(--bright-yellow);
+      color: var(--dark-text);
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .btn-fullscreen:hover {
+      background-color: #e6c500;
+      transform: scale(1.03);
+    }
+
+    .week-selector {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .week-btn {
+      background-color: var(--light-blue);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .week-btn.active, .week-btn:hover {
+      background-color: var(--primary-blue);
+      color: var(--bright-yellow);
+      transform: translateY(-2px);
+    }
+
+    .meta-card {
+      background-color: var(--card-bg);
+      border-left: 6px solid var(--olive-green);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .meta-item {
+      font-size: 0.9rem;
+    }
+
+    .meta-item strong {
+      color: var(--primary-blue);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 0;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 10px;
+      border: none;
+      border-radius: 10px 10px 0 0;
+      background-color: var(--gray-green);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .tab-btn.active {
+      background-color: var(--card-bg);
+      color: var(--primary-blue);
+      border-top: 4px solid var(--bright-yellow);
+    }
+
+    .tab-content {
+      background-color: var(--card-bg);
+      padding: 25px;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      min-height: 380px;
+      margin-bottom: 25px;
+    }
+
+    .moment-panel {
+      display: none;
+    }
+
+    .moment-panel.active {
+      display: block;
+    }
+
+    .moment-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--board-bg);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .moment-title {
+      font-size: 1.25rem;
+      color: var(--primary-blue);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-time {
+      background-color: var(--olive-green);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .habit-tag {
+      background-color: var(--bright-yellow);
+      color: var(--dark-text);
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+
+    .activity-box {
+      background-color: #F8FAF6;
+      border: 1px solid #E1E8D5;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .activity-title {
+      font-weight: bold;
+      color: var(--gray-green);
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+
+    ul, ol {
+      padding-left: 20px;
+      margin-bottom: 10px;
+    }
+
+    li {
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .collapsible-btn {
+      background-color: var(--light-blue);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .collapsible-btn:hover {
+      background-color: var(--primary-blue);
+    }
+
+    .collapsible-content {
+      display: none;
+      background-color: #EBF3F7;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 8px;
+      border-left: 4px solid var(--primary-blue);
+    }
+
+    .rubric-section {
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .rubric-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    .rubric-table th, .rubric-table td {
+      border: 1px solid #DDE4D2;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .rubric-table th {
+      background-color: var(--primary-blue);
+      color: white;
+    }
+
+    .rubric-table tr:nth-child(even) {
+      background-color: #F8FAF6;
+    }
+
+    .review-box {
+      background-color: #FFFDE7;
+      border: 1px dashed #F7D615;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 15px;
+    }
+
+    .review-box h4 {
+      color: #9E8200;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="board-container">
+  <header>
+    <div class="header-info">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyEop0yf6lZ7Jk9MILZxF1rBj4Oqs5esyhIQ&s" alt="Colegio Montano Logo">
+      <div class="header-titles">
+        <h1>Colegio Montano - Interactive Digital Board</h1>
+        <p>3rd Grade Grammar | Teacher: Nicole De León | Unit 1 (Jan 11 - Mar 5)</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-fullscreen" onclick="toggleFullscreen()">fullscreen</button>
+    </div>
+  </header>
+
+  <!-- Week Navigation -->
+  <div class="week-selector">
+    <button class="week-btn active" onclick="loadWeek(1)">Week 1: Before & After</button>
+    <button class="week-btn" onclick="loadWeek(2)">Week 2: Adverbs of Frequency</button>
+    <button class="week-btn" onclick="loadWeek(3)">Week 3: Can for Requests & Offers</button>
+    <button class="week-btn" onclick="loadWeek(4)">Week 4: Giving Directions</button>
+    <button class="week-btn" onclick="loadWeek(5)">Week 5: Too for Agreeing</button>
+    <button class="week-btn" onclick="loadWeek(6)">Week 6: But as a Contrast</button>
+    <button class="week-btn" onclick="loadWeek(7)">Week 7: Unit 1-3 Review</button>
+  </div>
+
+  <!-- General Info Card -->
+  <div class="meta-card" id="meta-display">
+    <!-- Populated dynamically via JavaScript -->
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-1')">I) Warm-Up (~5 min)</button>
+    <button class="tab-btn" onclick="switchTab('tab-2')">II) Individual Work (20 min)</button>
+    <button class="tab-btn" onclick="switchTab('tab-3')">III) Cooperative Work (30 min)</button>
+    <button class="tab-btn" onclick="switchTab('tab-4')">IV) Plenary / Closure (15 min)</button>
+  </div>
+
+  <!-- Tab Contents -->
+  <div class="tab-content" id="tab-container">
+    <!-- Content dynamic by JS -->
+  </div>
+
+  <!-- Plenary Rubric Section -->
+  <div class="rubric-section">
+    <h3 style="color: var(--primary-blue);">Interactive Plenary Checklist / Assessment Rubric</h3>
+    <p style="font-size: 0.85rem; color: #666; margin-top: 4px;">Used during Moment IV to evaluate group performance and mastery of learning outcomes.</p>
+    <table class="rubric-table">
+      <thead>
+        <tr>
+          <th>Evaluation Criteria</th>
+          <th>Needs Improvement (1 pt)</th>
+          <th>Good (2 pts)</th>
+          <th>Outstanding (3 pts)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1. Topic Mastery & Grammar Accuracy</strong></td>
+          <td>Frequent errors in target grammar structures.</td>
+          <td>Minor errors, but clear target grammar usage.</td>
+          <td>Flawless execution of grammar structure and clear explanation.</td>
+        </tr>
+        <tr>
+          <td><strong>2. Logic & Steps Followed</strong></td>
+          <td>Unclear or missing sequence in team solution.</td>
+          <td>Followed most steps correctly.</td>
+          <td>Demonstrated logical, step-by-step resolution accurately.</td>
+        </tr>
+        <tr>
+          <td><strong>3. Synergistic Teamwork</strong></td>
+          <td>Only 1 student dominated the presentation.</td>
+          <td>Most members participated equally.</td>
+          <td>Equitable, enthusiastic participation showing Habito 6 (Synergize).</td>
+        </tr>
+        <tr>
+          <td><strong>4. Q&A & Communication</strong></td>
+          <td>Unable to answer teacher/peer questions.</td>
+          <td>Answered questions with minor guidance.</td>
+          <td>Answered questions confidently with complete details.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const curriculumData = {
+    1: {
+      dates: "Jan 11 - Jan 17",
+      theme: "Before and After (Unit 1)",
+      sbPages: "16, 17",
+      wbPages: "7, 8",
+      competence: "Identifies and sequences daily activities using 'before' and 'after' in oral and written expressions.",
+      learningOutcome: "Constructs correct sentences using 'before' and 'after' based on daily routines.",
+      keySkills: "Critical thinking, time management, sequencing.",
+      habit: "Habit 3: Put First Things First (Prioritizing tasks & routines)",
+      m1: {
+        vocab: "Vocabulary 1 & 2: Daily Routines & Care (help, carry, hug, teach, take a shower, make my bed, come home, have a snack, do my homework).",
+        song: "Unit 1 Song: 'Taking Care' (SB p. 14)",
+        brainGym: "Speed Sequence: Teacher calls out two actions (e.g., 'wash hands' / 'eat lunch'). Students jump left for 'before' and right for 'after'."
+      },
+      m2: {
+        instructions: "Students read SB p. 16-17 and complete WB p. 7 individually. Write sentences using 'Before I go to school, I...' and 'After school, I...'",
+        collapsible: "Answer Key / Guide: 'Before' goes before the first action or event (e.g., Before I eat, I wash my hands). 'After' indicates subsequent actions (e.g., After I do homework, I play)."
+      },
+      m3: {
+        instructions: "In pairs, roles assigned: Student A (Routine Creator), Student B (Grammar Checker). Create a poster displaying a 4-step daily routine using 'Before' and 'After'.",
+        product: "Daily Routine Poster"
+      },
+      m4: {
+        plenary: "Teams present 2 steps of their routine to the class. Peer questioning: 'What do you do before having a snack?'",
+        interactiveGame: "Trivia Challenge: 'Before or After?' - Select correct connector to join daily tasks on the board.",
+        review: "Review Activity: Complete 3 quick sentences on sticky notes: 'Before sleeping, I ____.' 'After school, I ____.'"
+      }
+    },
+    2: {
+      dates: "Jan 18 - Jan 24",
+      theme: "Adverbs of Frequency (Unit 1)",
+      sbPages: "19",
+      wbPages: "10, 11",
+      competence: "Expresses frequency of actions using adverbs (always, usually, sometimes, never) accurately.",
+      learningOutcome: "Formulates questions and answers regarding personal habits and frequency of daily tasks.",
+      keySkills: "Self-awareness, emotional intelligence, reflection.",
+      habit: "Habit 1: Be Proactive (Taking responsibility for personal habits)",
+      m1: {
+        vocab: "Vocabulary 1 & 2 Review: Care & Routines.",
+        song: "Unit 1 Song: 'Taking Care' (Sing along with movement).",
+        brainGym: "Frequency Meter: Teacher names an action ('make my bed'). Students stand up 100% for 'always', sit for 'never', or squat for 'sometimes'."
+      },
+      m2: {
+        instructions: "Individual Work: SB p. 19 & WB p. 10. Students write 5 sentences rating their habits using always, usually, sometimes, or never.",
+        collapsible: "Guidance: Frequency scale: Always (100%), Usually (80%), Sometimes (50%), Never (0%). Place adverb before main verb."
+      },
+      m3: {
+        instructions: "Teams of 3: Conduct a 'Proactive Habit Survey'. Interview teammates: 'How often do you help at home?' Chart results.",
+        product: "Group Frequency Bar Chart"
+      },
+      m4: {
+        plenary: "Each team shares 1 surprise finding: 'In our group, 2 people always feed their pets.'",
+        interactiveGame: "Wheel of Fortune: Spin and state a true sentence about your day using the spun frequency adverb.",
+        review: "Review Exercise: Rearrange scrambled words into correct order (e.g., 'never / I / my bed / make' -> 'I never make my bed')."
+      }
+    },
+    3: {
+      dates: "Jan 25 - Jan 31",
+      theme: "Can for Requests and Offers (Unit 2)",
+      sbPages: "32, 33",
+      wbPages: "19, 20",
+      competence: "Applies 'Can I...' and 'Can you...' polite formulas for requesting help and offering assistance.",
+      learningOutcome: "Role-plays polite interactions asking for and offering help in public places.",
+      keySkills: "Communication, soft skills, social awareness.",
+      habit: "Habit 4: Think Win-Win (Offering help to create positive outcomes)",
+      m1: {
+        vocab: "Vocabulary 1 & 2: Places in Town (hospital, post office, bakery, museum, restaurant, supermarket, drugstore, train station, toy store, police station, library, zoo).",
+        song: "Unit 2 Song: 'A Great New Town' (SB p. 30)",
+        brainGym: "Polite Freeze: Students walk around. When teacher says 'Need help!', students turn to nearest partner and say 'Can I help you?'"
+      },
+      m2: {
+        instructions: "Individual Work: SB p. 32-33, WB p. 19. Complete dialogue prompts using 'Can I...' (offers) and 'Can you...' (requests).",
+        collapsible: "Answer Key: 'Can I help you?' = Offer. 'Can you help me?' = Request. Always follow with base verb."
+      },
+      m3: {
+        instructions: "Pair Work (Town Helper Role-Play): Role A (Lost Citizen), Role B (Helper at a town place). Write and practice a 4-line polite dialogue.",
+        product: "Role-Play Dialogue Script"
+      },
+      m4: {
+        plenary: "3 pair presentations on stage acting out their town scenarios.",
+        interactiveGame: "Polite Dialogue Wheel / Pasapalabra: Match requested items with places using 'Can I get... at the...?'",
+        review: "Review Exercise: Correct the error: 'Can you to help me?' -> 'Can you help me?'"
+      }
+    },
+    4: {
+      dates: "Feb 1 - Feb 7",
+      theme: "Giving Directions (Unit 2)",
+      sbPages: "35",
+      wbPages: "22, 23",
+      competence: "Uses imperative phrases and prepositions to give and follow town directions clearly.",
+      learningOutcome: "Provides clear step-by-step directions on a town map from point A to point B.",
+      keySkills: "Problem solving, spatial reasoning, collaboration.",
+      habit: "Habit 5: Seek First to Understand, Then to Be Understood (Listening to directions carefully)",
+      m1: {
+        vocab: "Vocabulary 1 & 2: Places & Recreation (swimming pool, zoo, library, mall, stadium, bakery, park).",
+        song: "Unit 2 Song: 'A Great New Town' (SB p. 30)",
+        brainGym: "Robot Navigator: In pairs, one student closes eyes while partner gives direction words: 'Turn left, go straight, stop'."
+      },
+      m2: {
+        instructions: "Individual Activity: SB p. 35 & WB p. 22. Look at map and complete directions: 'Turn right on Main St. It's next to the bakery.'",
+        collapsible: "Key Direction Terms: Turn left/right, Go straight, Next to, Across from, Between."
+      },
+      m3: {
+        instructions: "Teams of 4: 'Town Grid Challenge'. Create a town map grid on poster paper. Hide a secret treasure and write 3-step direction clues for another group.",
+        product: "Town Map Grid & Direction Cards"
+      },
+      m4: {
+        plenary: "Teams swap maps and test if the given directions lead to the correct location.",
+        interactiveGame: "Virtual Town Maze Simulator: Guiding a marker through directions read aloud.",
+        review: "Review Exercise: Complete: 'To get to the library, go ____ and turn ____.'"
+      }
+    },
+    5: {
+      dates: "Feb 8 - Feb 14",
+      theme: "Too for Agreeing (Unit 3)",
+      sbPages: "48, 49",
+      wbPages: "31, 32",
+      competence: "Utilizes 'too' to express agreement in affirmative statements regarding transportation and habits.",
+      learningOutcome: "Constructs agreeing statements in response to peer statements using 'I do, too' or 'Me, too'.",
+      keySkills: "Flexibility, active listening, relationship building.",
+      habit: "Habit 6: Synergize (Finding common ground and working together)",
+      m1: {
+        vocab: "Vocabulary 1 & 2: Transportation & Bike Actions (bus, airplane, helicopter, ferry, subway, sailboat, hot air balloon, ship, scooter, taxi, motorcycle, get on, pedal uphill, coast downhill, get off, park).",
+        song: "Unit 3 Song: 'How Do You Get to School?' (SB p. 46)",
+        brainGym: "Me Too Bounce: Teacher says 'I go to school by bus!' Students who agree jump up and shout 'I do, too!'"
+      },
+      m2: {
+        instructions: "Individual Work: SB p. 48-49, WB p. 31. Read statements and write matching agreement sentences using 'too'.",
+        collapsible: "Grammar Note: Positive statement agreement: 'I like bicycles.' -> 'I do, too.' or 'I ride a bus, too.'"
+      },
+      m3: {
+        instructions: "Pairs (Synergy Survey): Find 5 transportation preferences or hobbies you both have in common. Record as 'Student A rides a bike. Student B does, too.'",
+        product: "Synergy Commonality Record"
+      },
+      m4: {
+        plenary: "Pairs share their shared habits: 'We both ride scooters to the park!'",
+        interactiveGame: "Agreeing Bingo: Find classmates who share habits and shout 'I do, too!'",
+        review: "Review Exercise: Rewrite: 'I take the subway.' -> 'My brother ____ ____, ____.'"
+      }
+    },
+    6: {
+      dates: "Feb 15 - Feb 21",
+      theme: "But as a Contrast (Unit 3)",
+      sbPages: "51",
+      wbPages: "34, 35",
+      competence: "Applies the coordinating conjunction 'but' to join contrasting clauses correctly.",
+      learningOutcome: "Formulates compound sentences contrasting different means of travel or daily preferences.",
+      keySkills: "Critical thinking, analysis, writing structure.",
+      habit: "Habit 2: Begin with the End in Mind (Structuring clear contrast sentences)",
+      m1: {
+        vocab: "Vocabulary 1 & 2 Review: Transportation & Actions.",
+        song: "Unit 3 Song: 'How Do You Get to School?'",
+        brainGym: "Contrast Clap: Teacher says two contrasting ideas (e.g., 'Fast / Slow'). Students clap on 'BUT' to connect them."
+      },
+      m2: {
+        instructions: "Individual Activity: SB p. 51, WB p. 34. Combine two sentences using 'but'. (e.g., 'I take the bus. My brother rides a bike.')",
+        collapsible: "Answer Key: Use a comma before 'but' when connecting independent clauses: 'I like airplanes, but I travel by train.'"
+      },
+      m3: {
+        instructions: "Teams of 3: 'Transport Debate Matrix'. Create 4 sentence strips contrasting fast vs. slow or eco-friendly vs. polluting transportation using 'but'.",
+        product: "Contrasting Sentence Strips"
+      },
+      m4: {
+        plenary: "Group presentation reading sentence strips with expression emphasizing contrast.",
+        interactiveGame: "Sentence Connector Board Game: Join clause cards with 'but' or 'and' correctly.",
+        review: "Review Exercise: Insert 'but': 'I want a motorcycle ____ it is too dangerous.'"
+      }
+    },
+    7: {
+      dates: "Feb 22 - Mar 5",
+      theme: "Review Units 1 to 3",
+      sbPages: "Review Sections",
+      wbPages: "40, 41",
+      competence: "Integrates grammar structures and vocabulary from Units 1, 2, and 3 in comprehensive communicative tasks.",
+      learningOutcome: "Completes the review assessment unit showing mastery across all target topics.",
+      keySkills: "Self-evaluation, problem solving, decision making.",
+      habit: "Habit 7: Sharpen the Saw (Reviewing, reflecting, and continuous learning)",
+      m1: {
+        vocab: "Cumulative Vocabulary Review: Units 1, 2 & 3.",
+        song: "Medley of Unit 1, 2, and 3 Songs.",
+        brainGym: "Grammar Master Quiz Show Warm-up: Quick-fire questions on vocabulary and key grammar rules."
+      },
+      m2: {
+        instructions: "Individual Work: WB p. 40-41. Comprehensive review activities covering before/after, adverbs, can, directions, too, and but.",
+        collapsible: "Checklist: 1. Time connectors, 2. Frequency order, 3. Polite requests, 4. Directions, 5. Conjunctions (too/but)."
+      },
+      m3: {
+        instructions: "Cooperative Groups of 4: 'Grammar Challenge Station Rotation'. Complete 4 stations: Station A (Directions), Station B (Routine Before/After), Station C (Polite Requests), Station D (Contrasts).",
+        product: "Completed Station Challenge Sheet"
+      },
+      m4: {
+        plenary: "Teams share their final solutions for station tasks. Teacher executes final evaluation rubric.",
+        interactiveGame: "Unit 1-3 Grand Trivia Challenge (Jeopardy style game).",
+        review: "Final Reflection: Students write 1 thing they mastered and 1 Habit they practiced most during Unit 1."
+      }
+    }
+  };
+
+  let currentWeek = 1;
+  let currentTab = 'tab-1';
+
+  function renderWeekData() {
+    const data = curriculumData[currentWeek];
+    
+    // Meta Display
+    document.getElementById('meta-display').innerHTML = `
+      <div class="meta-item"><strong>Dates:</strong> ${data.dates}</div>
+      <div class="meta-item"><strong>Grammar Topic:</strong> ${data.theme}</div>
+      <div class="meta-item"><strong>Book Pages:</strong> SB: ${data.sbPages} | WB: ${data.wbPages}</div>
+      <div class="meta-item"><strong>Competence (CNB):</strong> ${data.competence}</div>
+      <div class="meta-item"><strong>Learning Outcome:</strong> ${data.learningOutcome}</div>
+      <div class="meta-item"><strong>Key Skills:</strong> ${data.keySkills}</div>
+    `;
+
+    // Render Tab Content
+    renderTabContent();
+  }
+
+  function renderTabContent() {
+    const data = curriculumData[currentWeek];
+    const container = document.getElementById('tab-container');
+
+    if (currentTab === 'tab-1') {
+      container.innerHTML = `
+        <div class="moment-panel active">
+          <div class="moment-header">
+            <div class="moment-title">Pestaña I) Introducción Motivante / Warm-Up</div>
+            <span class="badge-time">~5 Minutes</span>
+          </div>
+          <div class="habit-tag">${data.habit}</div>
+          <div class="activity-box">
+            <div class="activity-title">1. Vocabulary Practice (Vocab 1 & 2)</div>
+            <p>${data.m1.vocab}</p>
+          </div>
+          <div class="activity-box">
+            <div class="activity-title">2. Unit Song Practice</div>
+            <p>${data.m1.song}</p>
+          </div>
+          <div class="activity-box">
+            <div class="activity-title">3. Brain Gym / Prior Knowledge Activation</div>
+            <p>${data.m1.brainGym}</p>
+          </div>
+        </div>
+      `;
+    } else if (currentTab === 'tab-2') {
+      container.innerHTML = `
+        <div class="moment-panel active">
+          <div class="moment-header">
+            <div class="moment-title">Pestaña II) Trabajo Individual</div>
+            <span class="badge-time">20 Minutes</span>
+          </div>
+          <div class="habit-tag">${data.habit}</div>
+          <div class="activity-box">
+            <div class="activity-title">Individual Production Activity</div>
+            <p>${data.m2.instructions}</p>
+            <button class="collapsible-btn" onclick="toggleCollapsible()">
+              <span>Show Teacher Guidance / Answer Key</span>
+            </button>
+            <div class="collapsible-content" id="toggle-target">
+              <p>${data.m2.collapsible}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    } else if (currentTab === 'tab-3') {
+      container.innerHTML = `
+        <div class="moment-panel active">
+          <div class="moment-header">
+            <div class="moment-title">Pestaña III) Trabajo Cooperativo / en Equipo</div>
+            <span class="badge-time">30 Minutes</span>
+          </div>
+          <div class="habit-tag">${data.habit}</div>
+          <div class="activity-box">
+            <div class="activity-title">Structured Group / Pair Challenge</div>
+            <p>${data.m3.instructions}</p>
+            <p style="margin-top: 10px;"><strong>Concrete Deliverable/Product:</strong> ${data.m3.product}</p>
+          </div>
+        </div>
+      `;
+    } else if (currentTab === 'tab-4') {
+      container.innerHTML = `
+        <div class="moment-panel active">
+          <div class="moment-header">
+            <div class="moment-title">Pestaña IV) Plenaria o Cierre</div>
+            <span class="badge-time">15 Minutes</span>
+          </div>
+          <div class="habit-tag">${data.habit}</div>
+          <div class="activity-box">
+            <div class="activity-title">1. Team Plenary & Presentations</div>
+            <p>${data.m4.plenary}</p>
+          </div>
+          <div class="activity-box">
+            <div class="activity-title">2. Interactive Game / Simulator</div>
+            <p>${data.m4.interactiveGame}</p>
+          </div>
+          <div class="review-box">
+            <h4>Topic Review Exercise</h4>
+            <p>${data.m4.review}</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function loadWeek(weekNum) {
+    currentWeek = weekNum;
+    const buttons = document.querySelectorAll('.week-btn');
+    buttons.forEach((btn, index) => {
+      if (index + 1 === weekNum) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+    renderWeekData();
+  }
+
+  function switchTab(tabId) {
+    currentTab = tabId;
+    const tabs = document.querySelectorAll('.tab-btn');
+    tabs.forEach((tab) => {
+      if (tab.getAttribute('onclick').includes(tabId)) {
+        tab.classList.add('active');
+      } else {
+        tab.classList.remove('active');
+      }
+    });
+    renderTabContent();
+  }
+
+  function toggleCollapsible() {
+    const target = document.getElementById('toggle-target');
+    if (target.style.display === "block") {
+      target.style.display = "none";
+    } else {
+      target.style.display = "block";
+    }
+  }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        alert(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }
+
+  // Initialize page
+  renderWeekData();
+</script>
+
+</body>
+</html>
